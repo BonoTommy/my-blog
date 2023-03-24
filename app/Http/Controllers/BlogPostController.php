@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BlogPost;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BlogPostController extends Controller
 {
@@ -15,9 +16,9 @@ class BlogPostController extends Controller
     public function index()
     {
         //
-        $blog = BlogPost::all();
+        $blogs = BlogPost::all();
 
-        return $blog;
+        return view('blog.index', ['blogs' => $blogs]);
     }
 
     /**
@@ -28,6 +29,7 @@ class BlogPostController extends Controller
     public function create()
     {
         //
+        return view('blog.create');
     }
 
     /**
@@ -39,6 +41,13 @@ class BlogPostController extends Controller
     public function store(Request $request)
     {
         //
+        $blogPost = BlogPost::create([
+            'title'     => $request->title,
+            'body'      => $request->body,
+            'user_id'   => 1
+        ]);
+
+        return redirect(route('blog.show', $blogPost->id))->withSuccess('Post inserted');
     }
 
     /**
@@ -50,7 +59,7 @@ class BlogPostController extends Controller
     public function show(BlogPost $blogPost)
     {
         //
-        return $blogPost;
+        return view('blog.show', ['blogPost' => $blogPost]);
     }
 
     /**
@@ -62,6 +71,7 @@ class BlogPostController extends Controller
     public function edit(BlogPost $blogPost)
     {
         //
+        return view('blog.edit', ['blogPost' => $blogPost]);
     }
 
     /**
@@ -74,6 +84,12 @@ class BlogPostController extends Controller
     public function update(Request $request, BlogPost $blogPost)
     {
         //
+        $blogPost->update([
+            'title'     => $request->title,
+            'body'      => $request->body
+        ]);
+
+        return redirect(route('blog.show', $blogPost->id))->withSuccess('Post updated');
     }
 
     /**
@@ -84,6 +100,87 @@ class BlogPostController extends Controller
      */
     public function destroy(BlogPost $blogPost)
     {
-        //
+        $blogPost->delete();
+
+        return redirect(route('blog.index'))->withSuccess('Post Deleted');
+    }
+
+    public function query() {
+
+        $blog = BlogPost::all();
+
+        //$blog = BlogPost::select('id', 'title')->get();
+        //$blog = BlogPost::select()->first();
+
+        // $blog = pdo->prepare(select * from blog_posts WHERE id = 7); $blog(execute(array($id))); $blog->fetch();
+
+        // $blog = BlogPost::find(5);
+
+        // $blog = BlogPost:: select()
+        //     ->where('id', 1)
+        //     ->first();
+
+        // $blog = BlogPost:: select()
+        //      ->where('user_id', '!=', 1)
+        //      ->where('title', 'Abc')
+        //      ->orderby('title'/*, 'desc'*/)
+        //      ->get();
+        
+        /*$blog = BlogPost:: select()
+        ->where('user_id', '!=', 1)
+        ->orwhere('title', 'Abc')
+        ->orderby('title', 'desc')
+        ->get();*/
+
+
+        //UPDATE
+
+        // BlogPost::create([]);
+
+        // $blog = new BlogPost;
+        // $blog->title = 'Abc';
+        // $blog->save();
+
+        // $blog = BlogPost::find(1);
+        // $blog->update([]);
+
+        // $blog->title = "Abc";
+        // $blog->save();
+
+        //JOIN
+
+        // $blog = BlogPost::select()
+        //         ->join('users', 'user_id', '=', 'users.id')
+        //         ->get();
+
+        // $blog = BlogPost::select()
+        // ->rightjoin('users', 'blog_posts.user_id', '=', 'users.id')
+        // ->get();
+
+        //AGGREGATION
+
+    // $blog = BlogPost::count();
+    // $blog = BlogPost::max('id');
+    // $blog = BlogPost::average('id');
+
+    // $blog = BlogPost::select()
+    //     ->where("user_id", 2)
+    //     ->count();
+
+    // $blog = BlogPost::select(DB::raw('count(*) as blogs'), 'user_id')
+    //     ->groupBy('user_id')
+    //     ->get();
+
+    // $blog = BlogPost::select()
+    //     ->paginate(5);
+
+         return $blog(0);
+    }
+
+    public function page() {
+        $blogs = BlogPost::select()
+            ->paginate(5);
+
+        return view('blog.page', ['blogs' => $blogs]);
     }
 }
