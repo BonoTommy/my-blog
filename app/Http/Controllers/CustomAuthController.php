@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Contracts\Service\Attribute\Required;
 
 class CustomAuthController extends Controller
@@ -15,7 +17,7 @@ class CustomAuthController extends Controller
      */
     public function index()
     {
-        //
+        return view('auth.index');
     }
 
     /**
@@ -38,13 +40,19 @@ class CustomAuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:30',
-            'email' => 'required|email|unique',
+            'email' => 'required|email|unique:users',
             'password' => 'required|min:6|max:20'
+        ],
+        [
+            'name.required' => 'Custom Message'
         ]);
 
         $user = new User;
-        $user->fill($request->all()); 
+        $user->fill($request->all());
+        $user->password =  Hash::make($request->password);
         $user->save();
+
+        return redirect(route('blog.index'))->withSuccess("User registered");
     }
 
     /**
@@ -90,5 +98,12 @@ class CustomAuthController extends Controller
     public function destroy(User $user)
     {
         //
+    }
+
+    public function authentication(Request $request) {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
     }
 }
