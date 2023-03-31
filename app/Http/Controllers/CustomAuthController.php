@@ -10,6 +10,7 @@ use Symfony\Contracts\Service\Attribute\Required;
 
 class CustomAuthController extends Controller
 {
+    
     /**
      * Display a listing of the resource.
      *
@@ -105,5 +106,30 @@ class CustomAuthController extends Controller
             'email' => 'required|email',
             'password' => 'required'
         ]);
+
+        $credentials = $request->only('email', 'password');
+
+        if(!Auth::validate($credentials)):
+            return redirect(route('login'))->withErrors(trans('auth.failed'))->withInput();
+        endif;
+
+        $user = Auth::getProvider()->retrieveByCredentials($credentials);
+
+        Auth::login($user);
+
+        return redirect()->intended(route('user.list'));
+
+    }
+
+    public function logout() {
+        Auth::logout();
+        return redirect(route('login'));
+    }
+
+    public function userList() {
+        $users = User::select('id', 'name', 'email')
+            ->orderby('name')
+            ->paginate(10);
+        return view('auth.user-list', ['users' => $users]);
     }
 }

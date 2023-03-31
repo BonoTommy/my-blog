@@ -33,4 +33,7 @@ Route::get('query', [BlogPostController::class, 'query']);
 Route::get('register', [CustomAuthController::class, 'create'])->name('auth.create');
 Route::post('register', [CustomAuthController::class, 'store'])->name('auth.create');
 Route::get('login', [CustomAuthController::class, 'index'])->name('login'); //laravel reconnaît la route login
-Route::post('authentication', [CustomAuthController::class, 'authentication'])->name('authentication'); 
+Route::post('authentication', [CustomAuthController::class, 'authentication'])->name('authentication');
+Route::get('logout', [CustomAuthController::class, 'logout'])->name('logout');
+
+Route::get('user-list', [CustomAuthController::class, 'userList'])->name('user.list')->middleware('auth');
